@@ -14,6 +14,7 @@ class VanityAddressGenerator:
         self.stop_event = threading.Event()
         self.results = []
         self.start_time = time.time()
+        self.output_file = open("vanity_addresses.txt", "w")
 
     def generate_keypair(self):
         """Create a new keypair"""
@@ -26,6 +27,7 @@ class VanityAddressGenerator:
 
     def is_vanity_address(self, address):
         """Check if the address matches the desired prefixes and suffixes"""
+        address = address.lower()
         return any(address.startswith(prefix) for prefix in self.prefixes) and \
                any(address.endswith(suffix) for suffix in self.suffixes)
 
@@ -43,11 +45,16 @@ class VanityAddressGenerator:
 
     def print_result(self, private_key_64, address):
         """Print the generated keypair and address"""
-        print("Private key: ", base58.b58encode(private_key_64).decode('utf-8'))
-        print("Solana address: ", address)
+        private_key_str = base58.b58encode(private_key_64).decode('utf-8')
         elapsed_time = time.time() - self.start_time
-        print("Generated addresses: ", self.counter)
-        print("Time taken: ", elapsed_time, "seconds")
+        result_str = (
+            f"Private key: {private_key_str}\n"
+            f"Solana address: {address}\n"
+            f"Generated addresses: {self.counter}\n"
+            f"Time taken: {elapsed_time} seconds\n"
+        )
+        print(result_str)
+        self.output_file.write(result_str + "\n")
 
     def run(self):
         self.start_time = time.time()
@@ -61,6 +68,9 @@ class VanityAddressGenerator:
             self.print_result(private_key_64, address)
         print("Total generated addresses: ", self.counter)
         print("Total time taken: ", elapsed_time, "seconds")
+        self.output_file.write(f"Total generated addresses: {self.counter}\n")
+        self.output_file.write(f"Total time taken: {elapsed_time} seconds\n")
+        self.output_file.close()
 
 def main():
     prefixes = input("Please enter the Solana address prefixes (separated by ,): ").split(',')
