@@ -27,7 +27,6 @@ class VanityAddressGenerator:
 
     def is_vanity_address(self, address):
         """Check if the address matches the desired prefixes and suffixes"""
-        address = address.lower()
         return any(address.startswith(prefix) for prefix in self.prefixes) and \
                any(address.endswith(suffix) for suffix in self.suffixes)
 
